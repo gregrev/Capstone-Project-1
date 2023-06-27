@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, jsonify, render_template, session, redirect, flash, g, request
 from flask_debugtoolbar import DebugToolbarExtension
+from flask_cors import CORS
 
 from models import db, connect_db, User, Favorites, TrendingDevs, TrendingRepos
 # from api import get_trending_repos
@@ -10,6 +11,7 @@ from forms import UserAddForm, LoginForm, EditForm
 
 
 app = Flask(__name__)
+CORS(app)
 
 CURR_USER_KEY = "user_id"
 
