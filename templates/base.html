@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Trending Github</title>
+
+    <link rel="stylesheet" href="https://bootswatch.com/4/darkly/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">GitTrend</a>
+            <ul class="navbar-nav me-auto">
+                <!-- <li class="nav-item">
+                    <a class="nav-link active" href="/">Home</a>
+                </li> -->
+            </ul>
+            
+            {% block navfilter %} 
+            {% endblock %}
+
+            <ul class="navbar-nav ml-auto">
+                {% if not g.user %}
+                <li><a href="/login">Login | Sign Up</a></li>
+                {% else %}
+                <li>
+                    <a href="/users/{{ g.user.id }}">
+                        <img class="nav-icon-circle" src="{{ g.user.image_url }}" alt="{{ g.user.username }}">
+                    </a>
+                </li>
+                <li>
+                    <form action="/logout" method="POST">
+                        <button class="btn btn-link" type="submit">Logout ({{ g.user.username }})</button>
+                    </form>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+
+    {% block content %}
+    {% endblock %}
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/static/capstone.js"></script>
+
+</body>
+
+</html>

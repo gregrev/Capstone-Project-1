@@ -1,0 +1,113 @@
+body {
+    font-size: 15px;
+}
+
+.h5,
+h5 {
+    font-size: 13px;
+}
+
+.card-title {
+    margin: -8px;
+}
+
+.h3,
+h3 {
+    font-size: 16px;
+}
+
+.col-lg-3 {
+    -ms-flex: 0 0 25%;
+    flex: 0 0 25%;
+    max-width: 17%;
+}
+
+.icon-circle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 70px;
+    height: 70px;
+    border-radius: 0%;
+    object-fit: cover;
+}
+
+.nav-icon-circle {
+    position: absolute;
+    top: 0;
+    right: 190px;
+    width: 70px;
+    height: 70px;
+    border-radius: 0%;
+    object-fit: cover;
+}
+
+
+.dev-card {
+    position: relative;
+    left: 69px;
+}
+
+
+/* color of star button hovering/clicks */
+.likebtn {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+
+.likebtn {
+    border: none;
+    outline: none;
+}
+
+.likebtn.star-active,
+.likebtn.star-active:hover,
+.likebtn.star-active:active {
+    color: rgb(255, 196, 0);
+}
+
+.likebtn.star-inactive:hover,
+.likebtn.star-inactive:active {
+    color: rgb(255, 196, 0);
+}
+
+.star-active {
+    color: rgb(255, 196, 0);
+}
+
+.btn.focus, .btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+button:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/*  */
+.col-12 {
+    -ms-flex: 0 0 100%;
+    flex: 0 0 100%;
+    max-width: 50%;
+}
+
+.btn-group,
+.btn-group-vertical {
+    position: relative;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    vertical-align: middle;
+    padding-top: 2px;
+    padding-bottom: 10px;
+}
+
+.table-icon {
+    height: 48px;
+}
+
+.table-container {
+    width: 50%;
+    margin: auto;
+}

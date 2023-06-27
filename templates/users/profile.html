@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4 text-center">
+    <h3>{{ user.username }}'s Favorite Repositories</h3>
+    <div class="w-50 mx-auto">
+        <table id="repo-table" class="table table-hover mb-4 table-container">
+            <thead>
+                <tr class="table-success">
+                    <th scope="col">Repository</th>
+                    <th scope="col">Developer</th>
+                    <th scope="col">Language</th>
+                    <th scope="col">Stargazers</th>
+                    <th scope="col"></th> 
+                </tr>
+            </thead>
+            <tbody>
+                {% for repo in repos %}
+                <tr class="table-secondary" data-repo-id="{{ repo.id }}">
+                    <td>{{ repo.repo_name }}</td>
+                    <td>{{ repo.developer }}</td>
+                    <td>{{ repo.language }}</td>
+                    <td><i class="fas fa-star"></i>{{ repo.stargazers }}</td>
+                    <td>
+                        <button class="btn btn-link delete-button">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3>{{ user.username }}'s Favorite Developers</h3>
+    <div class="w-50 mx-auto">
+        <table id="dev-table" class="table table-hover mb-4 table-container">
+            <thead>
+                <tr class="table-success">
+                    <th scope="col"></th>
+                    <th scope="col">Developer</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Profile Link</th>
+                    <!-- column for delete button -->
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dev in devs %}
+                <tr class="table-secondary" data-dev-id="{{ dev.id }}">
+                    <td><img class="table-icon" src="{{ dev.dev_avatar }}" alt="Icon"></td>
+                    <td>{{ dev.dev_name }}</td>
+                    <td>{{ dev.dev_username }}</td>
+                    <td>{{ dev.profile_link }}</td>
+                    <td>
+                        <button class="btn btn-link delete-button">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
