@@ -27,8 +27,9 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "oh so secret")
 
 connect_db(app)
 
-fill_database()
-
+if os.environ.get("FLASK_ENV") == "production":
+    with app.app_context():
+        fill_database()
 
 @app.before_request
 def load_user():
