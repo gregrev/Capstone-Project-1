@@ -1,51 +1,56 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-4 ">
-    <h1>Trending Developers</h1>
-    <div class="btn-group" role="group" aria-label="Basic example">
-        <a href="/repos"
-            class="btn {% if current_page == 'repos' %}btn-primary{% else %}btn-secondary{% endif %}">Repositories</a>
-        <a href="/devs"
-            class="btn {% if current_page == 'devs' %}btn-primary{% else %}btn-secondary{% endif %}">Developers</a>
-    </div>
-
-    <div class="row" id="dev-cards">
-        {% for dev in devs_data %}
-        <div class="col-12 mb-4">
-            <div class="card custom-card">
-                <img class="icon-circle" src="{{ dev.dev_avatar }}" alt="Icon">
-                <h3 class="card-header"><a class="dev-card" href="https://www.github.com/{{ dev.dev_username }}">{{
-                        dev.dev_name }}</a></h3>
-                
-                {% if g.user %}
-                <form method="POST" action="/devs/{{ dev.id }}/favorite" class="dev-form" data-dev-id="{{ dev.id }}">
-                    {% if dev in devs %}
-                    <button class="btn btn-lg likebtn star-active">
-                        <i class="fas fa-star star-active"></i>
-                    </button>
-                    {% else %}
-                    <button class="btn btn-lg likebtn star-inactive">
-                        <i class="fas fa-star"></i>
-                    </button>
-                    {% endif %}
-                </form>
-                {% endif %}
-
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><span style="color: #00bc8c;">Username:</span> {{ dev.dev_username }}
-                    </li>
-                    <li class="list-group-item"><span style="color: #00bc8c;">Profile:</span> {{ dev.profile_link }}
-                    </li>
-
-                    <li class="list-group-item text-center">
-                        <strong><span style="color: #00bc8c;">Popular Repo:</span></strong> {{ dev.dev_pop_proj_name }}
-                        <br>
-                        {{ dev.dev_proj_desc }}
-                    </li>
-                </ul>
-            </div>
+<div style="margin-top: 86px;">
+    <div class="container mt-4 ">
+        <h1>Trending Developers</h1>
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <a href="/repos"
+                class="btn {% if current_page == 'repos' %}btn-primary{% else %}btn-secondary{% endif %}">Repositories</a>
+            <a href="/devs"
+                class="btn {% if current_page == 'devs' %}btn-primary{% else %}btn-secondary{% endif %}">Developers</a>
         </div>
-        {% endfor %}
+
+        <div class="row" id="dev-cards">
+            {% for dev in devs_data %}
+            <div class="col-12 mb-4">
+                <div class="card custom-card">
+                    <img class="icon-circle" src="{{ dev.dev_avatar }}" alt="Icon">
+                    <h3 class="card-header"><a class="dev-card" href="https://www.github.com/{{ dev.dev_username }}">{{
+                            dev.dev_name }}</a></h3>
+
+                    {% if g.user %}
+                    <form method="POST" action="/devs/{{ dev.id }}/favorite" class="dev-form"
+                        data-dev-id="{{ dev.id }}">
+                        {% if dev in devs %}
+                        <button class="btn btn-lg likebtn star-active">
+                            <i class="fas fa-star star-active"></i>
+                        </button>
+                        {% else %}
+                        <button class="btn btn-lg likebtn star-inactive">
+                            <i class="fas fa-star"></i>
+                        </button>
+                        {% endif %}
+                    </form>
+                    {% endif %}
+
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><span style="color: #00bc8c;">Username:</span> {{ dev.dev_username
+                            }}
+                        </li>
+                        <li class="list-group-item"><span style="color: #00bc8c;">Profile:</span> {{ dev.profile_link }}
+                        </li>
+
+                        <li class="list-group-item text-center">
+                            <strong><span style="color: #00bc8c;">Popular Repo:</span></strong> {{ dev.dev_pop_proj_name
+                            }}
+                            <br>
+                            {{ dev.dev_proj_desc }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}

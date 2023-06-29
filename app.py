@@ -5,9 +5,9 @@ from flask_debugtoolbar import DebugToolbarExtension
 from flask_cors import CORS
 
 from models import db, connect_db, User, Favorites, TrendingDevs, TrendingRepos
-# from api import get_trending_repos
-from database import fill_database, serialized_repos, serialized_devs
 from forms import UserAddForm, LoginForm, EditForm
+from bs4 import BeautifulSoup
+import requests
 
 
 app = Flask(__name__)
@@ -27,9 +27,173 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "oh so secret")
 
 connect_db(app)
 
-if os.environ.get("FLASK_ENV") == "production":
+def scrape_trending_repos():
+    url = 'https://github.com/trending'
+    html = requests.get(url)
+    soup = BeautifulSoup(html.content, 'html.parser')
+    repo_titles = soup.find_all('h2', class_='h3 lh-condensed')
+
+    repos = []
+    for repo in repo_titles:
+        title = repo.text.strip()
+        # split up the title in the h2 to use values seperately
+        title_parts = title.split('/', 1)
+        developer = title_parts[0].strip()
+        repo_name = title_parts[1].strip()
+
+        # the parent element of the h2 tag
+        parent_element = repo.find_parent('article')
+
+        # the p element with the specified class within the parent element
+        description_element = parent_element.find(
+            'p', class_='col-9 color-fg-muted my-1 pr-4')
+
+        # get the description text
+        description = description_element.text.strip() if description_element else ""
+
+        language = repo.find_next(
+            'span', class_='d-inline-block ml-0 mr-3').text.strip()
+        stargazers = repo.find_next(
+            'a', class_='Link--muted d-inline-block mr-3').text.strip()
+        stars_today = repo.find_next(
+            'span', class_='d-inline-block float-sm-right').text.strip()
+        href = repo.find_next('a')['href']
+
+        repo_data = {
+            'developer': developer,
+            'repo_name': repo_name,
+            'description': description,
+            'language': language,
+            'stargazers': stargazers,
+            'stars_today': stars_today,
+            'repo_link': f"https://github.com{href}"
+        }
+        repos.append(repo_data)
+
+    return repos
+
+
+def scrape_trending_devs():
+    url = 'https://github.com/trending/developers'
+    html = requests.get(url)
+    soup = BeautifulSoup(html.content, 'html.parser')
+    devs = soup.find_all('article', class_='Box-row')
+
+    trending_devs = []
+    for dev in devs:
+        dev_name = dev.find('h1', class_='h3 lh-condensed').text.strip()
+
+        dev_username = dev.find('p', class_='f4 text-normal mb-1')
+        if dev_username:
+            dev_username = dev_username.find(
+                'a', class_='Link--secondary').text.strip()
+        else:
+            dev_username = 'N/A'
+
+        dev_avatar = dev.find('img', class_='avatar-user')
+        if dev_avatar:
+            dev_avatar = dev_avatar['src']
+        else:
+            dev_avatar = 'N/A'
+
+        dev_pop_proj_name_elem = dev.find('h1', class_='h4 lh-condensed')
+        if dev_pop_proj_name_elem:
+            dev_pop_proj_name = dev_pop_proj_name_elem.find(
+                'a', class_='css-truncate-target').text.strip()
+        else:
+            dev_pop_proj_name = 'N/A'
+
+        dev_proj_desc_elem = dev.find('div', class_='f6 color-fg-muted mt-1')
+        if dev_proj_desc_elem:
+            dev_proj_desc = dev_proj_desc_elem.text.strip()
+        else:
+            dev_proj_desc = 'N/A'
+
+        dev_data = {
+            'dev_name': dev_name,
+            'dev_username': dev_username,
+            'dev_avatar': dev_avatar,
+            'dev_pop_proj_name': dev_pop_proj_name,
+            'dev_proj_desc': dev_proj_desc
+        }
+        trending_devs.append(dev_data)
+
+    return trending_devs
+
+
+@app.cli.command("fill_database")
+def fill_database_command():
     with app.app_context():
-        fill_database()
+        db.drop_all()
+        db.create_all()
+
+        trending_repos = scrape_trending_repos()
+        trending_devs = scrape_trending_devs()
+
+        for repo_data in trending_repos:
+            new_repo = TrendingRepos(
+                developer=repo_data['developer'],
+                repo_name=repo_data['repo_name'],
+                description=repo_data['description'],
+                language=repo_data['language'],
+                repo_link=repo_data['repo_link'],
+                stargazers=repo_data['stargazers'],
+                stars_today=repo_data['stars_today']
+            )
+            db.session.add(new_repo)
+
+        for dev_data in trending_devs:
+            dev_username = dev_data['dev_username']
+            profile_link = f"https://www.github.com/{dev_username}"
+            new_dev = TrendingDevs(
+                dev_name=dev_data['dev_name'],
+                dev_username=dev_data['dev_username'],
+                dev_avatar=dev_data['dev_avatar'],
+                profile_link=profile_link,
+                dev_pop_proj_name=dev_data['dev_pop_proj_name'],
+                dev_proj_desc=dev_data['dev_proj_desc']
+            )
+            db.session.add(new_dev)
+
+        db.session.commit()
+
+
+def serialized_repos():
+    repos = TrendingRepos.query.all()
+    # devs = TrendingDevs.query.all()
+
+    repos_data = [
+        {
+            'developer': repo.developer,
+            'repo_name': repo.repo_name,
+            'description': repo.description,
+            'language': repo.language,
+            'repo_link': repo.repo_link,
+            'stargazers': repo.stargazers,
+            'stars_today': repo.stars_today
+        }
+        for repo in repos
+    ]
+
+    return repos_data
+
+
+def serialized_devs():
+    devs = TrendingDevs.query.all()
+
+    devs_data = [
+        {
+            'dev_name': dev.dev_name,
+            'dev_username': dev.dev_username,
+            'dev_avatar': dev.dev_avatar,
+            'profile_link': dev.profile_link,
+            'dev_pop_proj_name': dev.dev_pop_proj_name,
+            'dev_proj_desc': dev.dev_proj_desc
+        }
+        for dev in devs
+    ]
+
+    return devs_data
 
 @app.before_request
 def load_user():
@@ -48,6 +212,7 @@ def homepage():
     return redirect('/repos')
 
 #  ***SIGNUP***
+
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup_user():
@@ -69,6 +234,7 @@ def signup_user():
 
 #  ***LOGIN***
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login_user():
     form = LoginForm()
@@ -89,6 +255,7 @@ def login_user():
 
 #  ***LOGOUT***
 
+
 @app.route('/logout', methods=['POST'])
 def logout_user():
     """Logout the current user"""
@@ -99,6 +266,7 @@ def logout_user():
     return redirect('/')
 
 #  ***ADD FAVORITES***
+
 
 @app.route("/repos/<int:repo_id>/favorite", methods=['POST'])
 def add_favorite_repo(repo_id):
@@ -153,13 +321,13 @@ def add_favorite_dev(dev_id):
 
 #  ***SHOW USER PROFILE***
 
+
 @app.route('/users/<int:user_id>')
 def show_profile(user_id):
     """Show user profile and user favorites"""
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-    
 
     user = User.query.get_or_404(user_id)
     favorites = Favorites.query.filter_by(user_id=g.user.id).all()
@@ -167,15 +335,16 @@ def show_profile(user_id):
     devs = []
     for fav in favorites:
         repo = TrendingRepos.query.get(fav.repo_id)
-        dev = TrendingDevs.query.get(fav.dev_id) 
+        dev = TrendingDevs.query.get(fav.dev_id)
         if repo:
             repos.append(repo)
         if dev:
-            devs.append(dev)       
+            devs.append(dev)
 
     return render_template('/users/profile.html', repos=repos, devs=devs, favorites=favorites, user=user)
 
 #  ***DAILY TRENDING REPOS ***
+
 
 @app.route("/repos", methods=['GET'])
 def display_repos():
@@ -211,6 +380,7 @@ def display_repos():
 
 #  ***DAILY TRENDING DEVS ***
 
+
 @app.route("/devs", methods=['GET'])
 def display_devs():
     """Display trending repos"""
@@ -245,3 +415,7 @@ def get_devs():
     """show api data of trending repos of the day"""
     devs_data = serialized_devs()
     return jsonify(devs_data)
+
+
+if __name__ == '__main__':
+    app.run()

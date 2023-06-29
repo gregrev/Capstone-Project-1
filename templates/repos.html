@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block navfilter %}
-<form method="GET" action="/repos" id="language-form" class="mb-3">
+<form method="GET" action="/repos" id="language-form" class="filter-menu">
     <select name="language" id="language-filter" class="form-select" aria-label="Language Select">
         <!-- if a language is not selected select default selection -->
         <option value="all" {% if not selected_language %} selected {% endif %}>Sort by Language</option>
@@ -16,52 +16,80 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1>Trending Repositories</h1>
-    <div class="btn-group" role="group" aria-label="Basic example">
-        <a href="/repos"
-            class="btn {% if current_page == 'repos' %}btn-primary{% else %}btn-secondary{% endif %}">Repositories</a>
-        <a href="/devs"
-            class="btn {% if current_page == 'devs' %}btn-primary{% else %}btn-secondary{% endif %}">Developers</a>
-    </div>
+<div style="margin-top: 80px;">
+    {% for message in get_flashed_messages() %}
+    <div style="margin-top: -25px;" class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+    <div class="container mt-4">
+        <h1>Trending Repositories</h1>
 
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3" id="repo-cards">
-        {% for repo in repos %}
-        <div class="col mb-3">
-            <div class="card d-flex flex-column h-100 custom-card">
-                <h3 class="card-header"><a href="{{ repo.repo_link }}">{{ repo.repo_name }}</a></h3>
+        <div class="d-flex justify-content-between">
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <a href="/repos"
+                    class="btn {% if current_page == 'repos' %}btn-primary{% else %}btn-secondary{% endif %}">Repositories</a>
+                <a href="/devs"
+                    class="btn {% if current_page == 'devs' %}btn-primary{% else %}btn-secondary{% endif %}">Developers</a>
 
-                {% if g.user %}
-                <form method="POST" action="/repos/{{ repo.id }}/favorite" class="repo-form"
-                    data-repo-id="{{ repo.id }}">
-                    {% if repo.id in favorites_repo_ids %}
-                    <button class="btn btn-med likebtn star-active">
-                        <i class="fas fa-star star-active"></i>
-                    </button>
-                    {% else %}
-                    <button class="btn btn-med likebtn star-inactive">
-                        <i class="fas fa-star"></i>
-                    </button>
-                    {% endif %}
+
+                <form method="GET" action="/repos" id="language-form">
+                    <select name="language" id="language-filter" class="form-select" aria-label="Language Select">
+                        <!-- if a language is not selected select default selection -->
+                        <option value="all" {% if not selected_language %} selected {% endif %}>Sort by Language
+                        </option>
+
+                        {% for language in languages %}
+                        <!-- if selected_language is a valid language make it selected -->
+                        <option value="{{ language }}" {% if selected_language==language %}selected{% endif %}>{{
+                            language
+                            }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
                 </form>
-                {% endif %}
-
-                <div class="card-body flex-fill">
-                    <h5 class="card-title">{{ repo.description }}</h5>
-                    <!-- <h6 class="card-subtitle text-muted">Dev: {{ repo.developer }} | Language: {{ repo.language }}</h6> -->
-                </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><span style="color: #00bc8c;">Developer:</span> {{ repo.developer }}
-                    </li>
-                    <li class="list-group-item"><span style="color: #00bc8c;">Language:</span> {{ repo.language }}</li>
-                    <li class="list-group-item"><span style="color: #00bc8c;">Stargazers:</span> {{ repo.stargazers }}
-                    </li>
-                    <li class="list-group-item"><span style="color: #00bc8c;">Stars Today:</span> {{ repo.stars_today }}
-                    </li>
-                </ul>
             </div>
         </div>
-        {% endfor %}
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3" id="repo-cards">
+            {% for repo in repos %}
+            <div class="col mb-3">
+                <div class="card d-flex flex-column h-100 custom-card">
+                    <h3 class="card-header"><a href="{{ repo.repo_link }}">{{ repo.repo_name }}</a></h3>
+
+                    {% if g.user %}
+                    <form method="POST" action="/repos/{{ repo.id }}/favorite" class="repo-form"
+                        data-repo-id="{{ repo.id }}">
+                        {% if repo.id in favorites_repo_ids %}
+                        <button class="btn btn-med likebtn star-active">
+                            <i class="fas fa-star star-active"></i>
+                        </button>
+                        {% else %}
+                        <button class="btn btn-med likebtn star-inactive">
+                            <i class="fas fa-star"></i>
+                        </button>
+                        {% endif %}
+                    </form>
+                    {% endif %}
+
+                    <div class="card-body flex-fill">
+                        <h5 class="card-title">{{ repo.description }}</h5>
+                        <!-- <h6 class="card-subtitle text-muted">Dev: {{ repo.developer }} | Language: {{ repo.language }}</h6> -->
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><span style="color: #00bc8c;">Developer:</span> {{ repo.developer }}
+                        </li>
+                        <li class="list-group-item"><span style="color: #00bc8c;">Language:</span> {{ repo.language }}
+                        </li>
+                        <li class="list-group-item"><span style="color: #00bc8c;">Stargazers:</span> {{ repo.stargazers
+                            }}
+                        </li>
+                        <li class="list-group-item"><span style="color: #00bc8c;">Stars Today:</span> {{
+                            repo.stars_today }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}

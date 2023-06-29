@@ -1,9 +1,7 @@
 """SQLAlchemy Models for Capstone"""
 
-# from datetime import datetime
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
-from api import get_trending_repos  # get_trending_devs
 
 bcrypt = Bcrypt()
 
@@ -145,4 +143,3 @@ class User(db.Model):
             return user
         else:
             return False
-
