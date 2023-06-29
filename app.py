@@ -3,6 +3,7 @@ import os
 from flask import Flask, jsonify, render_template, session, redirect, flash, g, request
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_cors import CORS
+from sqlalchemy.exc import IntegrityError
 
 from models import db, connect_db, User, Favorites, TrendingDevs, TrendingRepos
 from forms import UserAddForm, LoginForm, EditForm
@@ -220,17 +221,22 @@ def homepage():
 def signup_user():
     form = UserAddForm()
     if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
-        image_url = form.image_url.data or User.image_url.default.arg
+        try:
+            username = form.username.data
+            password = form.password.data
+            image_url = form.image_url.data or User.image_url.default.arg
 
-        new_user = User.signup(username, password, image_url)
-        db.session.add(new_user)
-        db.session.commit()
+            new_user = User.signup(username, password, image_url)
+            db.session.add(new_user)
+            db.session.commit()
+
+            session[CURR_USER_KEY] = new_user.id
+            flash('Successfully Created Your Account!')
+            return redirect("/")
+        except IntegrityError:    
         # update the session with the user's ID
-        session[CURR_USER_KEY] = new_user.id
-        flash('Successfully Created Your Account!')
-        return redirect("/")
+            flash("Username already taken", 'danger')
+            return redirect('/signup')
 
     return render_template('/users/signup.html', form=form)
 
