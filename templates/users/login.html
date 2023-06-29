@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
 <div style="margin-top: 86px;">
+  {% for message in get_flashed_messages() %}
+  <div style="margin-top: -25px;" class="alert alert-success">{{ message }}</div>
+  {% endfor %}
   <div class="row justify-content-md-center">
     <div class="col-md-7 col-lg-2">
       <h1 class="join-message text-center">Login</h1>

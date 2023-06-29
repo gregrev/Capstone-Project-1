@@ -249,6 +249,7 @@ def login_user():
             session[CURR_USER_KEY] = user.id
             return redirect('/')
         else:
+            flash('Invalid Login', 'error')
             form.username.errors = ['Invalid Login']
 
     return render_template('/users/login.html', form=form)
