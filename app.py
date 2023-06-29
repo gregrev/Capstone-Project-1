@@ -11,7 +11,7 @@ import requests
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
 CURR_USER_KEY = "user_id"
 
