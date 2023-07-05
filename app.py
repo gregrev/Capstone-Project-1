@@ -53,23 +53,27 @@ def homepage():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup_user():
     form = UserAddForm()
-    if form.validate_on_submit():
-        try:
-            username = form.username.data
-            password = form.password.data
-            image_url = form.image_url.data or User.image_url.default.arg
 
-            new_user = User.signup(username, password, image_url)
-            db.session.add(new_user)
-            db.session.commit()
+    if request.method == 'POST':
 
-            session[CURR_USER_KEY] = new_user.id
-            flash('Successfully Created Your Account!')
-            return redirect("/")
-        except IntegrityError:    
+        if form.validate_on_submit():
+            try:
+                username = form.username.data
+                password = form.password.data
+                image_url = form.image_url.data or User.image_url.default.arg
+
+                new_user = User.signup(username, password, image_url)
+                db.session.add(new_user)
+                db.session.commit()
+
+                session[CURR_USER_KEY] = new_user.id
+                flash('Successfully Created Your Account!')
+                print('**********Signup = Sucesss**********')
+                return redirect("/")
+            except IntegrityError:    
         # update the session with the user's ID
-            flash("Username already taken", 'danger')
-            return redirect('/signup')
+                flash("Username already taken", 'danger')
+                return redirect('/signup')
 
     return render_template('/users/signup.html', form=form)
 
@@ -79,19 +83,23 @@ def signup_user():
 @app.route('/login', methods=['GET', 'POST'])
 def login_user():
     form = LoginForm()
-    if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
 
-        user = User.authenticate(username, password)
-        if user:
-            flash(f'Welcome Back, {username}!')
-            # update the session with the user's ID
-            session[CURR_USER_KEY] = user.id
-            return redirect('/')
-        else:
-            flash('Invalid Login', 'error')
-            form.username.errors = ['Invalid Login']
+    if request.method == 'POST':
+
+        if form.validate_on_submit():
+            username = form.username.data
+            password = form.password.data
+
+            user = User.authenticate(username, password)
+            if user:
+                flash(f'Welcome Back, {username}!')
+                # update the session with the user's ID
+                session[CURR_USER_KEY] = user.id
+                print('**********Login = Sucesss**********')
+                return redirect('/')
+            else:
+                flash('Invalid Login', 'error')
+                form.username.errors = ['Invalid Login']
 
     return render_template('/users/login.html', form=form)
 

@@ -13,6 +13,7 @@
       <h1 class="join-message text-center">Join</h1>
       <p class="lead text-center">Sign up to save your favorite repos & devs!</p>
       <form method="POST" id="">
+        {{ form.csrf_token }}
         {{ form.hidden_tag() }}
 
         {% for field in form if field.widget.input_type != 'hidden' %}
