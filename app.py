@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 
 from models import db, connect_db, User, Favorites, TrendingDevs, TrendingRepos
 from database import fill_database, serialized_devs, serialized_repos
-from forms import UserAddForm, LoginForm, EditForm
+from forms import UserAddForm, LoginForm
 
 
 app = Flask(__name__)
@@ -23,13 +23,10 @@ app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "oh so secret")
 
-app.config['SESSION_COOKIE_SECURE'] = os.environ.get('SESSION_COOKIE_SECURE', True)
-app.config['SESSION_COOKIE_SAMESITE'] = os.environ.get('SESSION_COOKIE_SAMESITE', 'Lax')
-
-
 connect_db(app)
 
 fill_database()
+
 
 @app.before_request
 def load_user():
@@ -68,10 +65,10 @@ def signup_user():
 
             session[CURR_USER_KEY] = new_user.id
             flash('Successfully Created Your Account!')
-            print('**********Signup = Sucesss**********')
+            print('Signup = Sucesss')
             return redirect("/")
-        except IntegrityError:    
-        # update the session with the user's ID
+        except IntegrityError:
+            # update the session with the user's ID
             flash("Username already taken", 'danger')
             return redirect('/signup')
 
@@ -94,7 +91,7 @@ def login_user():
             flash(f'Welcome Back, {username}!')
             # update the session with the user's ID
             session[CURR_USER_KEY] = user.id
-            print('**********Login = Sucesss**********')
+            print('Login = Sucesss')
             return redirect('/')
         else:
             flash('Invalid Login', 'error')
@@ -268,6 +265,7 @@ def get_devs():
 
 if __name__ == '__main__':
     app.run()
+
 
 @app.after_request
 def add_header(req):
