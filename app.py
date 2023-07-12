@@ -52,8 +52,6 @@ def signup_user():
     form = UserAddForm()
 
     if request.method == 'POST':
-        print('POST method = success')
-
         try:
             username = form.username.data
             password = form.password.data
@@ -65,7 +63,6 @@ def signup_user():
 
             session[CURR_USER_KEY] = new_user.id
             flash('Successfully Created Your Account!')
-            print('Signup = Sucesss')
             return redirect("/")
         except IntegrityError:
             # update the session with the user's ID
@@ -82,7 +79,6 @@ def login_user():
     form = LoginForm()
 
     if request.method == 'POST':
-        print('POST method = success')
         username = form.username.data
         password = form.password.data
 
@@ -91,7 +87,6 @@ def login_user():
             flash(f'Welcome Back, {username}!')
             # update the session with the user's ID
             session[CURR_USER_KEY] = user.id
-            print('Login = Sucesss')
             return redirect('/')
         else:
             flash('Invalid Login', 'error')
