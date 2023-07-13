@@ -20,18 +20,19 @@ def get_trending_repos():
         parent_element = repo.find_parent('article')
 
         # the p element with the specified class within the parent element
-        description_element = parent_element.find(
-            'p', class_='col-9 color-fg-muted my-1 pr-4')
-
+        description_element = parent_element.find('p', class_='col-9 color-fg-muted my-1 pr-4')
         # get the description text
         description = description_element.text.strip() if description_element else ""
 
-        language = repo.find_next(
-            'span', class_='d-inline-block ml-0 mr-3').text.strip()
-        stargazers = repo.find_next(
-            'a', class_='Link--muted d-inline-block mr-3').text.strip()
-        stars_today = repo.find_next(
-            'span', class_='d-inline-block float-sm-right').text.strip()
+        language_element = parent_element.find('span', class_='d-inline-block ml-0 mr-3')
+        language = language_element.text.strip() if language_element else "N/A"
+
+        stargazers_element = parent_element.find('a', class_='Link--muted d-inline-block mr-3')
+        stargazers = stargazers_element.text.strip() if stargazers_element else ""
+
+        stars_today_element = parent_element.find('span', class_='d-inline-block float-sm-right')
+        stars_today = stars_today_element.text.strip() if stars_today_element else ""
+
         href = repo.find_next('a')['href']
 
         repo_data = {
